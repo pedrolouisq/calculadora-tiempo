@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Tiempo de Reproducciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #3498db;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+
+        .result p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .time-inputs input {
+            flex: 1;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            width: auto;
+            padding: 12px 15px;
+        }
+
+        .add-btn {
+            background: #2ecc71;
+            width: auto;
+            margin-top: 10px;
+        }
+
+        .instructions {
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .instructions h3 {
+            margin-bottom: 8px;
+            color: #3498db;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .time-inputs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Tiempo de Reproducciones</h1>
+        
+        <div class="section">
+            <h2>📊 Tiempos de Reproducción</h2>
+            <div id="time-inputs-container">
+                <div class="input-group time-inputs">
+                    <input type="text" class="time-input" placeholder="mm:ss (ej: 3:25)" value="3:25">
+                    <button class="remove-btn">✕</button>
+                </div>
+                <div class="input-group time-inputs">
+                    <input type="text" class="time-input" placeholder="mm:ss (ej: 4:10)" value="4:10">
+                    <button class="remove-btn">✕</button>
+                </div>
+                <div class="input-group time-inputs">
+                    <input type="text" class="time-input" placeholder="mm:ss (ej: 2:52)" value="2:52">
+                    <button class="remove-btn">✕</button>
+                </div>
+            </div>
+            
+            <button id="add-time-btn" class="add-btn">+ Agregar otro tiempo</button>
+            <button id="calculate-average-btn">Calcular Promedio</button>
+            
+            <div id="average-result" class="result" style="display: none;">
+                <p>Promedio de tiempo:</p>
+                <p class="result-value" id="average-value"></p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📈 Cálculo de Reproducciones Diarias</h2>
+            <div class="input-group">
+                <label for="screens">Número de pantallas/pestañas:</label>
+                <input type="number" id="screens" min="1" value="15">
+            </div>
+            
+            <div class="input-group">
+                <label for="daily-hours">Tiempo total de reproducción diaria (horas):</label>
+                <input type="number" id="daily-hours" min="0.1" step="0.1" value="24">
+            </div>
+            
+            <button id="calculate-plays-btn">Calcular Reproducciones Diarias</button>
+            
+            <div id="plays-result" class="result" style="display: none;">
+                <p>Reproducciones totales por día:</p>
+                <p class="result-value" id="plays-value"></p>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>Instrucciones de uso:</h3>
+            <p>1. Ingresa los tiempos de reproducción en formato mm:ss (ej: 3:25)</p>
+            <p>2. Haz clic en "Calcular Promedio" para obtener el tiempo promedio</p>
+            <p>3. Ingresa el número de pantallas y horas diarias de reproducción</p>
+            <p>4. Haz clic en "Calcular Reproducciones Diarias" para obtener el resultado</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencias a elementos del DOM
+            const timeInputsContainer = document.getElementById('time-inputs-container');
+            const addTimeBtn = document.getElementById('add-time-btn');
+            const calculateAverageBtn = document.getElementById('calculate-average-btn');
+            const averageResult = document.getElementById('average-result');
+            const averageValue = document.getElementById('average-value');
+            const calculatePlaysBtn = document.getElementById('calculate-plays-btn');
+            const playsResult = document.getElementById('plays-result');
+            const playsValue = document.getElementById('plays-value');
+            
+            // Agregar nuevo campo de tiempo
+            addTimeBtn.addEventListener('click', function() {
+                const newInputGroup = document.createElement('div');
+                newInputGroup.className = 'input-group time-inputs';
+                newInputGroup.innerHTML = `
+                    <input type="text" class="time-input" placeholder="mm:ss (ej: 3:25)">
+                    <button class="remove-btn">✕</button>
+                `;
+                timeInputsContainer.appendChild(newInputGroup);
+                
+                // Agregar evento al botón de eliminar
+                newInputGroup.querySelector('.remove-btn').addEventListener('click', function() {
+                    if (timeInputsContainer.children.length > 1) {
+                        timeInputsContainer.removeChild(newInputGroup);
+                    } else {
+                        alert('Debe haber al menos un tiempo ingresado.');
+                    }
+                });
+            });
+            
+            // Agregar eventos a los botones de eliminar existentes
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (timeInputsContainer.children.length > 1) {
+                        timeInputsContainer.removeChild(this.parentElement);
+                    } else {
+                        alert('Debe haber al menos un tiempo ingresado.');
+                    }
+                });
+            });
+            
+            // Calcular promedio de tiempos
+            calculateAverageBtn.addEventListener('click', function() {
+                const timeInputs = document.querySelectorAll('.time-input');
+                let totalSeconds = 0;
+                let validInputs = 0;
+                
+                timeInputs.forEach(input => {
+                    const timeValue = input.value.trim();
+                    if (timeValue) {
+                        const timeParts = timeValue.split(':');
+                        if (timeParts.length === 2) {
+                            const minutes = parseInt(timeParts[0]);
+                            const seconds = parseInt(timeParts[1]);
+                            
+                            if (!isNaN(minutes) && !isNaN(seconds) && minutes >= 0 && seconds >= 0 && seconds < 60) {
+                                totalSeconds += minutes * 60 + seconds;
+                                validInputs++;
+                            }
+                        }
+                    }
+                });
+                
+                if (validInputs === 0) {
+                    alert('Por favor ingresa al menos un tiempo válido en formato mm:ss.');
+                    return;
+                }
+                
+                const averageSeconds = totalSeconds / validInputs;
+                const averageMinutes = Math.floor(averageSeconds / 60);
+                const remainingSeconds = Math.round(averageSeconds % 60);
+                
+                averageValue.textContent = `${averageMinutes} minutos con ${remainingSeconds} segundos`;
+                averageResult.style.display = 'block';
+            });
+            
+            // Calcular reproducciones diarias
+            calculatePlaysBtn.addEventListener('click', function() {
+                // Obtener el promedio primero si no está calculado
+                if (averageResult.style.display === 'none') {
+                    alert('Primero debes calcular el promedio de tiempos.');
+                    return;
+                }
+                
+                const screens = parseInt(document.getElementById('screens').value);
+                const dailyHours = parseFloat(document.getElementById('daily-hours').value);
+                
+                if (isNaN(screens) || screens < 1) {
+                    alert('Por favor ingresa un número válido de pantallas (mínimo 1).');
+                    return;
+                }
+                
+                if (isNaN(dailyHours) || dailyHours <= 0) {
+                    alert('Por favor ingresa un tiempo diario válido (mayor a 0).');
+                    return;
+                }
+                
+                // Obtener el promedio en segundos
+                const averageText = averageValue.textContent;
+                const minutesMatch = averageText.match(/(\d+) minutos/);
+                const secondsMatch = averageText.match(/(\d+) segundos/);
+                
+                if (!minutesMatch || !secondsMatch) {
+                    alert('Error al obtener el promedio. Por favor calcula el promedio nuevamente.');
+                    return;
+                }
+                
+                const averageMinutes = parseInt(minutesMatch[1]);
+                const averageSeconds = parseInt(secondsMatch[1]);
+                const averageTotalSeconds = averageMinutes * 60 + averageSeconds;
+                
+                // Calcular reproducciones diarias
+                const dailySeconds = dailyHours * 3600; // Convertir horas a segundos
+                const playsPerScreen = dailySeconds / averageTotalSeconds;
+                const totalPlays = Math.round(playsPerScreen * screens);
+                
+                // Formatear el número con separadores de miles
+                playsValue.textContent = totalPlays.toLocaleString('es-ES') + ' reproducciones al día';
+                playsResult.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
